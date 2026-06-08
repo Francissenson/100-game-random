@@ -16,12 +16,23 @@ public sealed class SwordHitbox : MonoBehaviour
     [SerializeField]
     private int damage = 25;
 
+    private PlayerStats playerStats;
+
     private readonly HashSet<IDamageable> damagedTargets = new();
 
     private Coroutine attackRoutine;
 
     private void Awake()
     {
+        playerStats =
+            GetComponentInParent<PlayerStats>();
+
+        if (playerStats == null)
+        {
+            playerStats =
+                FindFirstObjectByType<PlayerStats>();
+        }
+
         if (hitboxCollider != null)
         {
             hitboxCollider.enabled = false;
@@ -30,6 +41,8 @@ public sealed class SwordHitbox : MonoBehaviour
 
     public void ActivateHitbox()
     {
+        Debug.Log("[SwordHitbox] Activated");
+
         damagedTargets.Clear();
 
         if (attackRoutine != null)
@@ -42,18 +55,35 @@ public sealed class SwordHitbox : MonoBehaviour
 
     private IEnumerator ActivateRoutine()
     {
+        if (hitboxCollider == null)
+        {
+            Debug.LogError(
+                "SwordHitbox is missing a Collider2D reference.");
+
+            attackRoutine = null;
+
+            yield break;
+        }
+
         hitboxCollider.enabled = true;
 
         yield return new WaitForSeconds(activeDuration);
 
-        hitboxCollider.enabled = false;
+        if (hitboxCollider != null)
+        {
+            hitboxCollider.enabled = false;
+        }
 
         attackRoutine = null;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        IDamageable damageable = other.GetComponent<IDamageable>();
+        Debug.Log(
+              $"[SwordHitbox] Triggered: {other.name}");
+
+        IDamageable damageable =
+            other.GetComponentInParent<IDamageable>();
 
         if (damageable == null)
         {
@@ -67,6 +97,19 @@ public sealed class SwordHitbox : MonoBehaviour
 
         damagedTargets.Add(damageable);
 
-        damageable.TakeDamage(damage);
+        int finalDamage = damage;
+
+        if (playerStats != null)
+        {
+            finalDamage =
+                Mathf.RoundToInt(
+                    damage *
+                    playerStats.DamageMultiplier);
+        }
+
+        Debug.Log(
+            $"[SwordHitbox] Damage: {finalDamage}");
+
+        damageable.TakeDamage(finalDamage);
     }
 }

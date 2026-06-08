@@ -1,34 +1,37 @@
 using UnityEngine;
 
-/// <summary>
-/// Base class for all player weapons.
-/// </summary>
 public abstract class Weapon : MonoBehaviour
 {
-    [Header("Weapon Info")]
-    [SerializeField]
-    private string weaponName = "Weapon";
+    public enum FireMode
+    {
+        SemiAuto,
+        Automatic
+    }
 
-    [SerializeField]
-    private int damage = 10;
+    [Header("Weapon Settings")]
+    [SerializeField] private float attackRate = 2f;
 
-    [SerializeField]
-    private float attackRate = 1f;
+    [SerializeField] private FireMode fireMode = FireMode.SemiAuto;
 
     private float nextAttackTime;
 
-    public string WeaponName => weaponName;
-    public int Damage => damage;
-    public float AttackRate => attackRate;
+    protected PlayerStats playerStats;
 
-    public virtual void Equip()
-    {
-        gameObject.SetActive(true);
-    }
+    public FireMode CurrentFireMode => fireMode;
 
-    public virtual void Unequip()
+    protected virtual void Awake()
     {
-        gameObject.SetActive(false);
+        playerStats =
+            GetComponentInParent<PlayerStats>();
+
+        if (playerStats == null)
+        {
+            playerStats =
+                FindFirstObjectByType<PlayerStats>();
+        }
+
+        Debug.Log(
+            $"[{GetType().Name}] Initialized");
     }
 
     public void Attack()
@@ -43,8 +46,17 @@ public abstract class Weapon : MonoBehaviour
         PerformAttack();
     }
 
-    /// <summary>
-    /// Weapon-specific attack implementation.
-    /// </summary>
+    protected int GetModifiedDamage(int baseDamage)
+    {
+        if (playerStats == null)
+        {
+            return baseDamage;
+        }
+
+        return Mathf.RoundToInt(
+            baseDamage *
+            playerStats.DamageMultiplier);
+    }
+
     protected abstract void PerformAttack();
 }

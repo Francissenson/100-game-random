@@ -1,24 +1,43 @@
 using UnityEngine;
 
-/// <summary>
-/// Reads player combat input.
-/// </summary>
-public sealed class PlayerCombatInput : MonoBehaviour
+public class PlayerCombatInput : MonoBehaviour
 {
-    private bool attackPressed;
+    private WeaponManager weaponManager;
 
-    /// <summary>
-    /// True during the frame attack was pressed.
-    /// </summary>
-    public bool AttackPressed => attackPressed;
+    private void Awake()
+    {
+        weaponManager = GetComponent<WeaponManager>();
+    }
 
     private void Update()
     {
-        attackPressed = Input.GetMouseButtonDown(0);
-    }
+        if (weaponManager == null)
+            return;
 
-    private void LateUpdate()
-    {
-        attackPressed = false;
+        Weapon currentWeapon = weaponManager.CurrentWeapon;
+
+        if (currentWeapon == null)
+            return;
+
+        switch (currentWeapon.CurrentFireMode)
+        {
+            case Weapon.FireMode.SemiAuto:
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    weaponManager.Attack();
+                }
+
+                break;
+
+            case Weapon.FireMode.Automatic:
+
+                if (Input.GetMouseButton(0))
+                {
+                    weaponManager.Attack();
+                }
+
+                break;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -16,26 +17,35 @@ public sealed class EnemyHealth : MonoBehaviour, IDamageable
     public int MaxHealth => maxHealth;
     public bool IsDead => isDead;
 
+    public event Action<EnemyHealth> OnDeath;
+
     private void Awake()
     {
         currentHealth = maxHealth;
+
+        Debug.Log($"{name} EnemyHealth Awake");
     }
 
     public void TakeDamage(int damage)
     {
+        Debug.Log($"{name} TakeDamage Called");
+
         if (isDead)
         {
+            Debug.LogWarning($"{name} already dead");
             return;
         }
 
         if (damage <= 0)
         {
+            Debug.LogWarning($"{name} invalid damage: {damage}");
             return;
         }
 
         currentHealth -= damage;
 
-        Debug.Log($"{name} took {damage} damage. HP: {currentHealth}/{maxHealth}");
+        Debug.Log(
+            $"{name} took {damage} damage. HP: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
@@ -46,13 +56,15 @@ public sealed class EnemyHealth : MonoBehaviour, IDamageable
     private void Die()
     {
         if (isDead)
-        {
             return;
-        }
 
         isDead = true;
 
         Debug.Log($"{name} died.");
+
+        OnDeath?.Invoke(this);
+
+        Debug.Log($"{name} death event fired.");
 
         Destroy(gameObject);
     }

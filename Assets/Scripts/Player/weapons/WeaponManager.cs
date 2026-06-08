@@ -1,123 +1,178 @@
 using UnityEngine;
 
-/// <summary>
-/// Manages player weapon slots and active weapon state.
-/// </summary>
-public sealed class WeaponManager : MonoBehaviour
+public class WeaponManager : MonoBehaviour
 {
-    [Header("Weapon References")]
-    [SerializeField]
-    private Transform weaponHolder;
-
     [Header("Weapon Slots")]
-    [SerializeField]
-    private Weapon swordWeapon;
+    [SerializeField] private Weapon slot1Weapon;
+    [SerializeField] private Weapon slot2Weapon;
 
-    [SerializeField]
-    private Weapon pistolWeapon;
+    [SerializeField] private Transform lootWeaponSlot;
 
-    [SerializeField]
-    private Weapon lootWeapon;
+    private Weapon slot3Weapon;
 
-    private PlayerCombatInput combatInput;
     private Weapon currentWeapon;
-    private int currentWeaponSlot = 1;
 
-    public int CurrentWeaponSlot => currentWeaponSlot;
-
-    public Transform WeaponHolder => weaponHolder;
+    private int currentSlot = 1;
 
     public Weapon CurrentWeapon => currentWeapon;
 
-    private void Awake()
+    public Transform LootWeaponSlot => lootWeaponSlot;
+
+    private void Start()
     {
-        combatInput = GetComponent<PlayerCombatInput>();
-
-        if (weaponHolder == null)
-        {
-            Debug.LogError($"{nameof(WeaponManager)}: Weapon Holder is not assigned.", this);
-            return;
-        }
-
-        EquipWeapon(1);
+        EquipSlot(1);
     }
 
     private void Update()
     {
-        HandleWeaponSwitching();
-        HandleAttackInput();
+        HandleKeyboardSwitching();
+        HandleMouseWheelSwitching();
     }
 
-    private void HandleWeaponSwitching()
+    public void Attack()
+    {
+        currentWeapon?.Attack();
+    }
+
+    public void EquipLootWeapon(Weapon newWeapon)
+    {
+        bool slot3WasActive = currentSlot == 3;
+
+        if (slot3Weapon != null)
+        {
+            Destroy(slot3Weapon.gameObject);
+        }
+
+        slot3Weapon = newWeapon;
+
+        slot3Weapon.gameObject.SetActive(false);
+
+        if (slot3WasActive)
+        {
+            EquipSlot(3);
+        }
+    }
+
+    private void HandleKeyboardSwitching()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            EquipWeapon(1);
+            EquipSlot(1);
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            EquipWeapon(2);
+            EquipSlot(2);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            if (slot3Weapon != null)
+            {
+                EquipSlot(3);
+            }
         }
     }
 
-    private void HandleAttackInput()
+    private void HandleMouseWheelSwitching()
     {
-        if (combatInput == null)
-        {
-            return;
-        }
+        float scroll = Input.mouseScrollDelta.y;
 
-        if (!combatInput.AttackPressed)
+        if (scroll > 0f)
         {
-            return;
+            EquipNextWeapon();
         }
-
-        currentWeapon?.Attack();
+        else if (scroll < 0f)
+        {
+            EquipPreviousWeapon();
+        }
     }
 
-    private void EquipWeapon(int slot)
+    private void EquipNextWeapon()
     {
-        if (swordWeapon != null)
-        {
-            swordWeapon.Unequip();
-        }
+        int startSlot = currentSlot;
 
-        if (pistolWeapon != null)
+        do
         {
-            pistolWeapon.Unequip();
-        }
+            currentSlot++;
 
-        if (lootWeapon != null)
+            if (currentSlot > 3)
+            {
+                currentSlot = 1;
+            }
+
+            if (HasWeaponInSlot(currentSlot))
+            {
+                EquipSlot(currentSlot);
+                return;
+            }
+
+        } while (currentSlot != startSlot);
+    }
+
+    private void EquipPreviousWeapon()
+    {
+        int startSlot = currentSlot;
+
+        do
         {
-            lootWeapon.Unequip();
-        }
+            currentSlot--;
 
-        currentWeapon = null;
+            if (currentSlot < 1)
+            {
+                currentSlot = 3;
+            }
+
+            if (HasWeaponInSlot(currentSlot))
+            {
+                EquipSlot(currentSlot);
+                return;
+            }
+
+        } while (currentSlot != startSlot);
+    }
+
+    private bool HasWeaponInSlot(int slot)
+    {
+        return slot switch
+        {
+            1 => slot1Weapon != null,
+            2 => slot2Weapon != null,
+            3 => slot3Weapon != null,
+            _ => false
+        };
+    }
+
+    private void EquipSlot(int slot)
+    {
+        if (slot1Weapon != null)
+            slot1Weapon.gameObject.SetActive(false);
+
+        if (slot2Weapon != null)
+            slot2Weapon.gameObject.SetActive(false);
+
+        if (slot3Weapon != null)
+            slot3Weapon.gameObject.SetActive(false);
 
         switch (slot)
         {
             case 1:
-
-                if (swordWeapon != null)
-                {
-                    swordWeapon.Equip();
-                    currentWeapon = swordWeapon;
-                }
-
+                currentWeapon = slot1Weapon;
                 break;
 
             case 2:
+                currentWeapon = slot2Weapon;
+                break;
 
-                if (pistolWeapon != null)
-                {
-                    pistolWeapon.Equip();
-                    currentWeapon = pistolWeapon;
-                }
-
+            case 3:
+                currentWeapon = slot3Weapon;
                 break;
         }
 
-        currentWeaponSlot = slot;
+        if (currentWeapon != null)
+        {
+            currentWeapon.gameObject.SetActive(true);
+            currentSlot = slot;
+        }
     }
-}   
+}
