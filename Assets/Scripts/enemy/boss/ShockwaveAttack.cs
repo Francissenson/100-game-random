@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public sealed class ShockwaveAttack : MonoBehaviour
@@ -6,8 +7,26 @@ public sealed class ShockwaveAttack : MonoBehaviour
 
     [SerializeField] private int damage = 20;
 
-    public void TriggerShockwave()
+    [SerializeField] private ShockwaveTelegraph telegraph;
+
+    [SerializeField] private float warningTime = 0.75f;
+
+    public IEnumerator TriggerShockwave()
     {
+        Debug.Log(
+            "[ShockwaveAttack] Warning.");
+
+        if (telegraph != null)
+        {
+            yield return StartCoroutine(
+                telegraph.ShowTelegraph());
+        }
+        else
+        {
+            yield return new WaitForSeconds(
+                warningTime);
+        }
+
         Debug.Log(
             "[ShockwaveAttack] Triggered.");
 
@@ -24,7 +43,7 @@ public sealed class ShockwaveAttack : MonoBehaviour
             }
 
             IDamageable damageable =
-                hit.GetComponent<IDamageable>();
+                hit.GetComponentInParent<IDamageable>();
 
             if (damageable == null)
             {
@@ -36,6 +55,11 @@ public sealed class ShockwaveAttack : MonoBehaviour
 
             Debug.Log(
                 $"[ShockwaveAttack] Hit Player For {damage}");
+        }
+
+        if (telegraph != null)
+        {
+            telegraph.HideTelegraph();
         }
     }
 

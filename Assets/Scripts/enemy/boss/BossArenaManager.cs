@@ -32,12 +32,14 @@ public sealed class BossArenaManager : MonoBehaviour
     }
 
     private void HandleBossDeath(
-        EnemyHealth deadBoss)
+       EnemyHealth deadBoss)
     {
         Debug.Log(
             "[BossArenaManager] Boss Defeated!");
 
-        Debug.Log(
-            "[BossArenaManager] Victory!");
+        RunResultManager.Instance.SetVictory();
+
+        SceneLoader.Instance.LoadScene(
+            "EndRunScene");
     }
 }

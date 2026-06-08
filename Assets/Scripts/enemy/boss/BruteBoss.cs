@@ -29,6 +29,9 @@ public sealed class BruteBoss : BossBase
 
     [SerializeField] private float recoveryTime = 1f;
 
+    [Header("Phase 2")]
+    [SerializeField] private ShockwaveAttack shockwaveAttack;
+
     [Header("Health")]
     [SerializeField] private EnemyHealth enemyHealth;
 
@@ -181,6 +184,15 @@ public sealed class BruteBoss : BossBase
 
         PerformAttack();
 
+        if (currentPhase == BossPhase.Phase2)
+        {
+            yield return new WaitForSeconds(
+                0.25f);
+
+            yield return StartCoroutine(
+                TriggerShockwave());
+        }
+
         currentState =
             BossState.Recovery;
 
@@ -251,7 +263,7 @@ public sealed class BruteBoss : BossBase
             }
 
             IDamageable damageable =
-                hit.GetComponent<IDamageable>();
+                hit.GetComponentInParent<IDamageable>();
 
             if (damageable == null)
             {
@@ -264,6 +276,23 @@ public sealed class BruteBoss : BossBase
             Debug.Log(
                 $"[BruteBoss] Hit Player For {currentDamage}");
         }
+    }
+
+    private IEnumerator TriggerShockwave()
+    {
+        if (shockwaveAttack == null)
+        {
+            Debug.LogWarning(
+                "[BruteBoss] ShockwaveAttack missing.");
+
+            yield break;
+        }
+
+        Debug.Log(
+            "[BruteBoss] Shockwave!");
+
+        yield return StartCoroutine(
+            shockwaveAttack.TriggerShockwave());
     }
 
     private void OnDrawGizmosSelected()

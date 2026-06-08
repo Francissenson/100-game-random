@@ -1,117 +1,56 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public sealed class RoomExit : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private RoomManager roomManager;
+    [SerializeField]
+    private string nextScene;
 
-    private bool playerInRange;
-
-    private RunManager runManager;
-
-    private void Awake()
-    {
-        if (roomManager == null)
-        {
-            roomManager =
-                FindFirstObjectByType<RoomManager>();
-        }
-
-        runManager =
-            FindFirstObjectByType<RunManager>();
-    }
+    private bool playerInside;
 
     private void Update()
     {
-        if (!playerInRange)
-        {
-            return;
-        }
-
-        if (roomManager == null)
-        {
-            return;
-        }
-
-        if (roomManager.CurrentState != RoomState.Completed)
+        if (!playerInside)
         {
             return;
         }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            LoadNextRoom();
+            if (SceneLoader.Instance == null)
+            {
+                Debug.LogError(
+                    "[RoomExit] SceneLoader missing.");
+
+                return;
+            }
+
+            SceneLoader.Instance.LoadScene(
+                nextScene);
         }
     }
 
-    private void LoadNextRoom()
+    private void OnTriggerEnter2D(
+        Collider2D other)
     {
-        if (runManager == null)
+        if (!other.CompareTag("Player"))
         {
-            Debug.LogError(
-                "[RoomExit] RunManager not found.");
-
             return;
         }
 
-        if (!runManager.HasNextRoom())
-        {
-            Debug.Log(
-                "[RoomExit] Run Complete.");
-
-            return;
-        }
-
-        RoomDefinition nextRoom =
-            runManager.GetNextRoom();
-
-        if (nextRoom == null)
-        {
-            Debug.LogError(
-                "[RoomExit] Next room is null.");
-
-            return;
-        }
+        playerInside = true;
 
         Debug.Log(
-            $"[RoomExit] Loading {nextRoom.sceneName}");
-
-        runManager.AdvanceRoom();
-
-        SceneManager.LoadScene(
-            nextRoom.sceneName);
+            "[RoomExit] Press E");
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerExit2D(
+        Collider2D other)
     {
         if (!other.CompareTag("Player"))
         {
             return;
         }
 
-        playerInRange = true;
-
-        if (roomManager != null &&
-            roomManager.CurrentState == RoomState.Completed)
-        {
-            Debug.Log(
-                "[RoomExit] Press E to continue.");
-        }
-        else
-        {
-            Debug.Log(
-                "[RoomExit] Room not completed.");
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        playerInRange = false;
+        playerInside = false;
     }
 }
