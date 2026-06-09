@@ -41,12 +41,22 @@ public abstract class Weapon : MonoBehaviour
             return;
         }
 
-        nextAttackTime = Time.time + (1f / attackRate);
+        float finalAttackRate = attackRate;
+
+        if (playerStats != null)
+        {
+            finalAttackRate *=
+                playerStats.FireRateMultiplier;
+        }
+
+        nextAttackTime =
+            Time.time + (1f / finalAttackRate);
 
         PerformAttack();
     }
 
-    protected int GetModifiedDamage(int baseDamage)
+    protected int GetModifiedDamage(
+        int baseDamage)
     {
         if (playerStats == null)
         {

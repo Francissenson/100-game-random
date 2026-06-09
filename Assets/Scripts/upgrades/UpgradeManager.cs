@@ -10,11 +10,6 @@ public sealed class UpgradeManager : MonoBehaviour
 
     private void Awake()
     {
-        if (playerStats == null)
-        {
-            playerStats = FindFirstObjectByType<PlayerStats>();
-        }
-
         if (upgradeDatabase == null)
         {
             upgradeDatabase =
@@ -22,6 +17,30 @@ public sealed class UpgradeManager : MonoBehaviour
         }
 
         Debug.Log("[UpgradeManager] Initialized.");
+    }
+
+    private void Start()
+    {
+        TryGetPlayerStats();
+
+        if (playerStats != null)
+        {
+            Debug.Log(
+                "[UpgradeManager] PlayerStats connected.");
+        }
+    }
+
+    private bool TryGetPlayerStats()
+    {
+        if (playerStats != null)
+        {
+            return true;
+        }
+
+        playerStats =
+            FindFirstObjectByType<PlayerStats>();
+
+        return playerStats != null;
     }
 
     private void Update()
@@ -58,6 +77,14 @@ public sealed class UpgradeManager : MonoBehaviour
 
     public void ApplyUpgrade(UpgradeData upgrade)
     {
+        if (!TryGetPlayerStats())
+        {
+            Debug.LogError(
+                "[UpgradeManager] PlayerStats not found.");
+
+            return;
+        }
+
         if (upgrade == null)
         {
             Debug.LogError(
@@ -76,15 +103,18 @@ public sealed class UpgradeManager : MonoBehaviour
                 break;
 
             case UpgradeType.MoveSpeed:
-                playerStats.AddMoveSpeedMultiplier(upgrade.value);
+                playerStats.AddMoveSpeedMultiplier(
+                    upgrade.value);
                 break;
 
             case UpgradeType.Damage:
-                playerStats.AddDamageMultiplier(upgrade.value);
+                playerStats.AddDamageMultiplier(
+                    upgrade.value);
                 break;
 
             case UpgradeType.FireRate:
-                playerStats.AddFireRateMultiplier(upgrade.value);
+                playerStats.AddFireRateMultiplier(
+                    upgrade.value);
                 break;
 
             case UpgradeType.ProjectileCount:

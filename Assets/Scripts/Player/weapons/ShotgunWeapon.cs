@@ -40,16 +40,24 @@ public class ShotgunWeapon : Weapon
         int finalDamage =
             GetModifiedDamage(projectileDamage);
 
+        int finalPelletCount = pelletCount;
+
+        if (playerStats != null)
+        {
+            finalPelletCount +=
+                playerStats.BonusProjectiles;
+        }
+
         Debug.Log(
-            $"[ShotgunWeapon] Pellet Damage: {finalDamage}");
+            $"[ShotgunWeapon] Pellet Damage: {finalDamage} | Pellets: {finalPelletCount}");
 
         float halfSpread = spreadAngle * 0.5f;
 
-        for (int i = 0; i < pelletCount; i++)
+        for (int i = 0; i < finalPelletCount; i++)
         {
             float angle;
 
-            if (pelletCount == 1)
+            if (finalPelletCount == 1)
             {
                 angle = 0f;
             }
@@ -58,7 +66,7 @@ public class ShotgunWeapon : Weapon
                 angle = Mathf.Lerp(
                     -halfSpread,
                     halfSpread,
-                    i / (float)(pelletCount - 1));
+                    i / (float)(finalPelletCount - 1));
             }
 
             Quaternion pelletRotation =

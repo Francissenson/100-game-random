@@ -14,6 +14,9 @@ public class SMGWeapon : Weapon
 
     [SerializeField] private float projectileLifetime = 2f;
 
+    [Header("Bonus Projectile")]
+    [SerializeField] private float projectileSpacing = 0.15f;
+
     protected override void PerformAttack()
     {
         if (projectilePrefab == null || firePoint == null)
@@ -27,18 +30,37 @@ public class SMGWeapon : Weapon
         int finalDamage =
             GetModifiedDamage(projectileDamage);
 
+        int projectileCount = 1;
+
+        if (playerStats != null)
+        {
+            projectileCount +=
+                playerStats.BonusProjectiles;
+        }
+
         Debug.Log(
-            $"[SMGWeapon] Damage: {finalDamage}");
+            $"[SMGWeapon] Damage: {finalDamage} | Projectiles: {projectileCount}");
 
-        Projectile projectile = Instantiate(
-            projectilePrefab,
-            firePoint.position,
-            firePoint.rotation);
+        float startOffset =
+            -((projectileCount - 1) * projectileSpacing) * 0.5f;
 
-        projectile.Initialize(
-            firePoint.right,
-            finalDamage,
-            projectileSpeed,
-            projectileLifetime);
+        for (int i = 0; i < projectileCount; i++)
+        {
+            Vector3 spawnOffset =
+                firePoint.up *
+                (startOffset + (i * projectileSpacing));
+
+            Projectile projectile =
+                Instantiate(
+                    projectilePrefab,
+                    firePoint.position + spawnOffset,
+                    firePoint.rotation);
+
+            projectile.Initialize(
+                firePoint.right,
+                finalDamage,
+                projectileSpeed,
+                projectileLifetime);
+        }
     }
 }

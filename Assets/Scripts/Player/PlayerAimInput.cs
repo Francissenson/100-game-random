@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Game.Player
 {
-    /// <summary>
-    /// Reads mouse aiming input and forwards it to gameplay systems.
-    /// </summary>
     [RequireComponent(typeof(WeaponAimController))]
     [RequireComponent(typeof(PlayerSpriteFlipper))]
     public sealed class PlayerAimInput : MonoBehaviour
@@ -15,13 +12,22 @@ namespace Game.Player
 
         private void Awake()
         {
-            _mainCamera = Camera.main;
             _weaponAimController = GetComponent<WeaponAimController>();
             _spriteFlipper = GetComponent<PlayerSpriteFlipper>();
         }
 
         private void Update()
         {
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+
+                if (_mainCamera == null)
+                {
+                    return;
+                }
+            }
+
             UpdateAim();
         }
 

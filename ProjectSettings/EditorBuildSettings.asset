@@ -13,13 +13,46 @@ EditorBuildSettings:
     guid: 3c906fd78249b8444826e96921c1c83d
   - enabled: 1
     path: Assets/Scenes/CombatRoom01.unity
-    guid: 7b081a3497d5a13469522a2c47a67f4d
+    guid: d39c856eacb3d2b419f0f7e7c9ce351e
   - enabled: 1
-    path: Assets/Scenes/TreasureRoom.unity
-    guid: 63e1abf5b9ebf7848aa7f81ce39c9e60
+    path: Assets/Scenes/CombatRoom02.unity
+    guid: 833049d6ebae78244a19e88ea2e4ba1b
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom03.unity
+    guid: 358a27a05fbe61741ab95a508e93c4aa
+  - enabled: 1
+    path: Assets/Scenes/TreasureRoom 1.unity
+    guid: 12087f0b97119d94992ca21a1f554f7b
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom04.unity
+    guid: c0967c234aba2314bb0579050c68c5fd
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom05.unity
+    guid: e973313fd07f1314b8f2af3514179660
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom06.unity
+    guid: bd7cf14291f52254d8a5b5c8e6de4007
+  - enabled: 1
+    path: Assets/Scenes/TreasureRoom2.unity
+    guid: ef8cae2738903bf48b1b000574472136
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom07.unity
+    guid: bcdb45f1d73ef86468186bdb13c39159
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom08.unity
+    guid: b4fe4f4360dd6a24fbc753ef08542523
+  - enabled: 1
+    path: Assets/Scenes/CombatRoom09.unity
+    guid: 083d43fbc771fcc4792087087200addd
   - enabled: 1
     path: Assets/Scenes/BossRoom.unity
     guid: bf395ba084b1f934e9538b41275fc671
+  - enabled: 1
+    path: Assets/Scenes/ExitRoom.unity
+    guid: 1835d308ec7fb8c4aaeba2f88fd05561
+  - enabled: 1
+    path: Assets/Scenes/EndRunScene.unity
+    guid: 6ce30c0ea425a39499dcef84503198b5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

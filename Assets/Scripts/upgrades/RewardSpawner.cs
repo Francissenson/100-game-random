@@ -103,18 +103,17 @@ public sealed class RewardSpawner : MonoBehaviour
         List<UpgradeData> upgrades =
             upgradeSelection.GenerateChoices(2);
 
-        SpawnWeaponReward(
+        SpawnUpgradeReward(
             spawnPoints[0],
+            upgrades[0]);
+
+        SpawnWeaponReward(
+            spawnPoints[1],
             weaponReward);
 
-        for (int i = 0;
-             i < upgrades.Count && i < 2;
-             i++)
-        {
-            SpawnUpgradeReward(
-                spawnPoints[i + 1],
-                upgrades[i]);
-        }
+        SpawnUpgradeReward(
+            spawnPoints[2],
+            upgrades[1]);
 
         Debug.Log(
             "[RewardSpawner] Spawned Treasure Rewards.");

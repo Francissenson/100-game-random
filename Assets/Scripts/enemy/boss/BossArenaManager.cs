@@ -1,45 +1,118 @@
+using System.Collections;
 using UnityEngine;
 
 public sealed class BossArenaManager : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private EnemyHealth bossHealth;
+    [Header("Wave")]
+    [SerializeField]
+    private WaveManager waveManager;
 
-    private void Start()
+    [Header("Boss")]
+    [SerializeField]
+    private EnemyHealth bossPrefab;
+
+    [SerializeField]
+    private Transform bossSpawnPoint;
+
+    [Header("Room")]
+    [SerializeField]
+    private RoomExit roomExit;
+
+    [SerializeField]
+    private float bossSpawnDelay = 3f;
+
+    private EnemyHealth currentBoss;
+
+    private bool bossSpawned;
+
+    private void OnEnable()
     {
-        if (bossHealth == null)
+        if (waveManager != null)
         {
-            Debug.LogError(
-                "[BossArenaManager] BossHealth missing.");
-
-            return;
+            waveManager.OnAllWavesCompleted +=
+                HandleAllWavesCompleted;
         }
-
-        bossHealth.OnDeath +=
-            HandleBossDeath;
-
-        Debug.Log(
-            "[BossArenaManager] Initialized.");
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        if (bossHealth != null)
+        if (waveManager != null)
         {
-            bossHealth.OnDeath -=
+            waveManager.OnAllWavesCompleted -=
+                HandleAllWavesCompleted;
+        }
+
+        if (currentBoss != null)
+        {
+            currentBoss.OnDeath -=
                 HandleBossDeath;
         }
     }
 
+    private void HandleAllWavesCompleted()
+    {
+        if (bossSpawned)
+        {
+            return;
+        }
+
+        StartCoroutine(
+            SpawnBossAfterDelay());
+    }
+
+    private IEnumerator SpawnBossAfterDelay()
+    {
+        bossSpawned = true;
+
+        Debug.Log(
+            "[BossArenaManager] All enemies defeated.");
+
+        yield return new WaitForSeconds(
+            bossSpawnDelay);
+
+        SpawnBoss();
+    }
+
+    private void SpawnBoss()
+    {
+        if (bossPrefab == null)
+        {
+            Debug.LogError(
+                "[BossArenaManager] Boss Prefab missing.");
+
+            return;
+        }
+
+        if (bossSpawnPoint == null)
+        {
+            Debug.LogError(
+                "[BossArenaManager] Boss Spawn Point missing.");
+
+            return;
+        }
+
+        currentBoss =
+            Instantiate(
+                bossPrefab,
+                bossSpawnPoint.position,
+                Quaternion.identity);
+
+        currentBoss.OnDeath +=
+            HandleBossDeath;
+
+        Debug.Log(
+            "[BossArenaManager] Boss Spawned.");
+    }
+
     private void HandleBossDeath(
-       EnemyHealth deadBoss)
+        EnemyHealth boss)
     {
         Debug.Log(
             "[BossArenaManager] Boss Defeated!");
 
-        RunResultManager.Instance.SetVictory();
-
-        SceneLoader.Instance.LoadScene(
-            "EndRunScene");
+        if (roomExit != null)
+        {
+            roomExit.Unlock();
+        }
     }
 }

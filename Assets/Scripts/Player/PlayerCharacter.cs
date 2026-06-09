@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Game.Player
 {
-    /// <summary>
-    /// Handles player locomotion.
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public sealed class PlayerCharacter : MonoBehaviour
     {
@@ -14,6 +11,7 @@ namespace Game.Player
 
         private Rigidbody2D _rigidbody;
         private PlayerDashSystem _dashSystem;
+        private PlayerStats _playerStats;
         private Vector2 _movementDirection;
 
         public Vector2 MovementDirection => _movementDirection;
@@ -22,11 +20,13 @@ namespace Game.Player
         {
             _rigidbody = GetComponent<Rigidbody2D>();
             _dashSystem = GetComponent<PlayerDashSystem>();
+            _playerStats = GetComponent<PlayerStats>();
         }
 
         private void FixedUpdate()
         {
-            if (_dashSystem != null && _dashSystem.IsDashing)
+            if (_dashSystem != null &&
+                _dashSystem.IsDashing)
             {
                 return;
             }
@@ -34,21 +34,30 @@ namespace Game.Player
             ApplyMovement();
         }
 
-        /// <summary>
-        /// Receives movement direction from the input layer.
-        /// </summary>
-        public void SetMovementDirection(Vector2 direction)
+        public void SetMovementDirection(
+            Vector2 direction)
         {
             _movementDirection = direction;
         }
 
         private void ApplyMovement()
         {
+            float finalMoveSpeed = moveSpeed;
+
+            if (_playerStats != null)
+            {
+                finalMoveSpeed *=
+                    _playerStats.MoveSpeedMultiplier;
+            }
+
             Vector2 targetPosition =
                 _rigidbody.position +
-                (_movementDirection * moveSpeed * Time.fixedDeltaTime);
+                (_movementDirection *
+                 finalMoveSpeed *
+                 Time.fixedDeltaTime);
 
-            _rigidbody.MovePosition(targetPosition);
+            _rigidbody.MovePosition(
+                targetPosition);
         }
     }
 }

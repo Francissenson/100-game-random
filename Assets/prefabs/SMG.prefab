@@ -136,10 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c62a7939680f3940a41b56c9e1774e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SMGWeapon
-  attackRate: 12
+  attackRate: 5
   fireMode: 1
   projectilePrefab: {fileID: -7200054179935781836, guid: 87b9cdc1ac249454d9aff2d7c057ec47, type: 3}
   firePoint: {fileID: 1276182754149967406}
   projectileDamage: 3
   projectileSpeed: 25
   projectileLifetime: 2
+  projectileSpacing: 0.15

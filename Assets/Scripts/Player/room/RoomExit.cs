@@ -5,52 +5,63 @@ public sealed class RoomExit : MonoBehaviour
     [SerializeField]
     private string nextScene;
 
-    private bool playerInside;
+    [Header("Gate")]
+    [SerializeField]
+    private GameObject closedGate;
 
-    private void Update()
+    [SerializeField]
+    private GameObject openGate;
+
+    [SerializeField]
+    private GameObject exitTrigger;
+
+    [SerializeField]
+    private bool unlocked;
+
+    public void Unlock()
     {
-        if (!playerInside)
+        if (unlocked)
         {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        unlocked = true;
+
+        if (closedGate != null)
         {
-            if (SceneLoader.Instance == null)
-            {
-                Debug.LogError(
-                    "[RoomExit] SceneLoader missing.");
-
-                return;
-            }
-
-            SceneLoader.Instance.LoadScene(
-                nextScene);
-        }
-    }
-
-    private void OnTriggerEnter2D(
-        Collider2D other)
-    {
-        if (!other.CompareTag("Player"))
-        {
-            return;
+            closedGate.SetActive(false);
         }
 
-        playerInside = true;
+        if (openGate != null)
+        {
+            openGate.SetActive(true);
+        }
+
+        if (exitTrigger != null)
+        {
+            exitTrigger.SetActive(true);
+        }
 
         Debug.Log(
-            "[RoomExit] Press E");
+            "[RoomExit] Unlocked");
     }
 
-    private void OnTriggerExit2D(
-        Collider2D other)
+    public void LoadNextRoom()
     {
-        if (!other.CompareTag("Player"))
+        if (!unlocked)
         {
             return;
         }
 
-        playerInside = false;
+        if (SceneLoader.Instance == null)
+        {
+            Debug.LogError(
+                "[RoomExit] SceneLoader missing.");
+
+            return;
+        }
+
+        SceneLoader.Instance.LoadScene(
+            nextScene);
     }
 }

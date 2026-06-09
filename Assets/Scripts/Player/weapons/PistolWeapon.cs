@@ -14,6 +14,9 @@ public class PistolWeapon : Weapon
 
     [SerializeField] private float projectileLifetime = 3f;
 
+    [Header("Bonus Projectile")]
+    [SerializeField] private float projectileSpacing = 0.20f;
+
     protected override void PerformAttack()
     {
         if (projectilePrefab == null || firePoint == null)
@@ -27,20 +30,37 @@ public class PistolWeapon : Weapon
         int finalDamage =
             GetModifiedDamage(projectileDamage);
 
+        int projectileCount = 1;
+
+        if (playerStats != null)
+        {
+            projectileCount +=
+                playerStats.BonusProjectiles;
+        }
+
         Debug.Log(
-            $"[PistolWeapon] Damage: {finalDamage}");
+            $"[PistolWeapon] Damage: {finalDamage} | Projectiles: {projectileCount}");
 
-        Projectile projectile = Instantiate(
-            projectilePrefab,
-            firePoint.position,
-            firePoint.rotation);
+        float startOffset =
+            -((projectileCount - 1) * projectileSpacing) * 0.5f;
 
-        Vector2 direction = firePoint.right;
+        for (int i = 0; i < projectileCount; i++)
+        {
+            Vector3 spawnOffset =
+                firePoint.up *
+                (startOffset + (i * projectileSpacing));
 
-        projectile.Initialize(
-            direction,
-            finalDamage,
-            projectileSpeed,
-            projectileLifetime);
+            Projectile projectile =
+                Instantiate(
+                    projectilePrefab,
+                    firePoint.position + spawnOffset,
+                    firePoint.rotation);
+
+            projectile.Initialize(
+                firePoint.right,
+                finalDamage,
+                projectileSpeed,
+                projectileLifetime);
+        }
     }
 }

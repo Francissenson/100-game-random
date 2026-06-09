@@ -4,6 +4,8 @@ public sealed class MainMenuUI : MonoBehaviour
 {
     public void StartRun()
     {
+        PlayerSpawner.Instance.SpawnPlayer();
+
         SceneLoader.Instance.LoadScene(
             "StartingRoom");
     }
