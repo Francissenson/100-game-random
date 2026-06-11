@@ -47,6 +47,16 @@ public sealed class TreasureRoomManager : MonoBehaviour
 
     private void HandleRewardSelected()
     {
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddRoomClear();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[TreasureRoomManager] RunStatsManager missing. Room clear not recorded.");
+        }
+
         if (roomExit != null)
         {
             roomExit.Unlock();

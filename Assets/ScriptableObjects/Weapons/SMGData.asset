@@ -15,4 +15,4 @@ MonoBehaviour:
   weaponName: SMG
   description: 
   weaponPrefab: {fileID: 5760424513654714002, guid: f696e5d833f74e44497994977683e726, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: -7888296697152109952, guid: e9131ba3bb9f72542ad857c098408b37, type: 3}

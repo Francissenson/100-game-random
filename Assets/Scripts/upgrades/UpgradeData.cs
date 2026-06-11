@@ -10,6 +10,8 @@ public class UpgradeData
     [TextArea]
     public string description;
 
+    public Sprite icon;
+
     [Header("Upgrade")]
     public UpgradeType upgradeType;
 

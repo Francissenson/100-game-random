@@ -206,6 +206,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 70
+  damageNumberPrefab: {fileID: 0}
+  damageNumberOffset: {x: 0, y: 0.8, z: 0}
+  healthBarOffset: {x: 0, y: 1.1, z: 0}
 --- !u!114 &4452991836131421750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,12 +222,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TankEnemy
   visuals: {fileID: 4281285515555325307}
-  moveSpeed: 1.5
+  moveSpeed: 2
   attackRange: 2
   attackPivot: {fileID: 4755030755935484843}
   attackPoint: {fileID: 8188185237535258886}
   attackRadius: 1.5
-  attackDamage: 25
+  attackDamage: 30
   rotationSpeed: 360
   angleTolerance: 2
   attackWindup: 0.75

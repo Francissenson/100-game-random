@@ -15,4 +15,4 @@ MonoBehaviour:
   weaponName: Shotgun
   description: 
   weaponPrefab: {fileID: 8758569945296829497, guid: 55ca9208c3a14154c84737a00fe556a2, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: 2912464402848211330, guid: e9131ba3bb9f72542ad857c098408b37, type: 3}

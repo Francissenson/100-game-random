@@ -297,6 +297,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 30
+  damageNumberPrefab: {fileID: 0}
+  damageNumberOffset: {x: 0, y: 0.8, z: 0}
+  healthBarOffset: {x: 0, y: 1.1, z: 0}
 --- !u!114 &5934366018204099256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,13 +313,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GruntEnemy
   visuals: {fileID: 8504066754590149215}
-  moveSpeed: 2
+  moveSpeed: 2.5
   attackRange: 1.25
   attackPivot: {fileID: 1629341694223630422}
   attackPoint: {fileID: 7525659466403877441}
   attackRadius: 0.75
-  attackDamage: 10
-  attackCooldown: 2
+  attackDamage: 5
+  attackCooldown: 1
   swingAngle: 90
   swingDuration: 0.15
 --- !u!1 &7914261272419580929

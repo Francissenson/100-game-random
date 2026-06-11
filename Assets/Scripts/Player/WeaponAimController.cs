@@ -27,6 +27,16 @@ namespace Game.Player
             Vector2 direction =
                 _aimPosition - weaponPivot.position;
 
+            bool aimingLeft =
+                _aimPosition.x < weaponPivot.position.x;
+
+            Vector3 localScale = weaponPivot.localScale;
+
+            localScale.y =
+                Mathf.Abs(localScale.y) * (aimingLeft ? -1f : 1f);
+
+            weaponPivot.localScale = localScale;
+
             float angle =
                 Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 

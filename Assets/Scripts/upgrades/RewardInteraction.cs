@@ -4,9 +4,14 @@ public sealed class RewardInteraction : MonoBehaviour
 {
     [SerializeField] private RewardPickup rewardPickup;
 
+    [SerializeField] private Vector3 hoverTextOffset = new Vector3(0f, 1.2f, 0f);
+
+    [SerializeField] private RewardHoverText hoverCardPrefab;
+
     private RewardSelectionManager rewardSelectionManager;
 
     private bool playerInRange;
+    private RewardHoverText hoverText;
 
     private void Awake()
     {
@@ -136,8 +141,7 @@ public sealed class RewardInteraction : MonoBehaviour
         Debug.Log(
             $"[RewardInteraction] In Range: {rewardPickup.GetRewardName()}");
 
-        Debug.Log(
-            rewardPickup.GetRewardDescription());
+        ShowHoverText();
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -151,5 +155,55 @@ public sealed class RewardInteraction : MonoBehaviour
 
         Debug.Log(
             $"[RewardInteraction] Left: {rewardPickup.GetRewardName()}");
+
+        HideHoverText();
+    }
+
+    private void ShowHoverText()
+    {
+        if (rewardPickup == null)
+        {
+            return;
+        }
+
+        if (hoverCardPrefab == null)
+        {
+            Debug.LogError(
+                "[RewardInteraction] Hover card prefab not assigned.");
+
+            return;
+        }
+
+        if (hoverText == null)
+        {
+            hoverText =
+                Instantiate(
+                    hoverCardPrefab);
+
+            hoverText.Bind(
+                transform,
+                hoverTextOffset);
+        }
+
+        Sprite pickupSprite = rewardPickup.GetPickupSprite();
+
+        Debug.Log(
+            $"[RewardInteraction] Hover icon: {(pickupSprite != null ? pickupSprite.name : "NULL")}");
+
+        hoverText.SetText(
+            rewardPickup.GetRewardName(),
+            rewardPickup.GetRewardDescription(),
+            pickupSprite);
+    }
+
+    private void HideHoverText()
+    {
+        if (hoverText == null)
+        {
+            return;
+        }
+
+        Destroy(hoverText.gameObject);
+        hoverText = null;
     }
 }

@@ -16,7 +16,20 @@ public class WeaponManager : MonoBehaviour
 
     public Weapon CurrentWeapon => currentWeapon;
 
+    public int CurrentSlot => currentSlot;
+
     public Transform LootWeaponSlot => lootWeaponSlot;
+
+    public Weapon GetWeaponInSlot(int slot)
+    {
+        return slot switch
+        {
+            1 => slot1Weapon,
+            2 => slot2Weapon,
+            3 => slot3Weapon,
+            _ => null
+        };
+    }
 
     private void Start()
     {

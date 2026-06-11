@@ -109,6 +109,17 @@ public sealed class WaveManager : MonoBehaviour
             Debug.Log(
                 $"[WaveManager] Reward Granted: {completedWave.reward.goldReward} Gold");
 
+            if (RunStatsManager.Instance != null)
+            {
+                RunStatsManager.Instance.AddGold(
+                    completedWave.reward.goldReward);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[WaveManager] RunStatsManager missing. Gold not recorded.");
+            }
+
             OnRewardGranted?.Invoke(
                 completedWave.reward);
         }

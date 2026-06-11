@@ -14,6 +14,12 @@ public sealed class RunResultManager : MonoBehaviour
         private set;
     }
 
+    public bool RunFinished
+    {
+        get;
+        private set;
+    }
+
     private void Awake()
     {
         if (Instance != null &&
@@ -31,10 +37,18 @@ public sealed class RunResultManager : MonoBehaviour
     public void SetVictory()
     {
         Victory = true;
+        RunFinished = true;
     }
 
     public void SetGameOver()
     {
         Victory = false;
+        RunFinished = true;
+    }
+
+    public void ResetResult()
+    {
+        Victory = false;
+        RunFinished = false;
     }
 }

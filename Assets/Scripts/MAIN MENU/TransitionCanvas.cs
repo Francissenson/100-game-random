@@ -26,10 +26,29 @@ public sealed class TransitionCanvas : MonoBehaviour
 
     private Vector2 rightOpen;
 
+    private bool isTransitioning;
+
+    public static bool IsTransitioning { get; private set; }
+
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
+        InitializeDoorPositions();
+
+        if (loadingArtwork != null)
+        {
+            loadingArtwork.SetActive(false);
+        }
+
+        if (!isTransitioning)
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    private void InitializeDoorPositions()
+    {
         leftClosed =
             new Vector2(
                 -480f,
@@ -55,15 +74,18 @@ public sealed class TransitionCanvas : MonoBehaviour
 
         rightDoor.anchoredPosition =
             rightOpen;
-
-        if (loadingArtwork != null)
-        {
-            loadingArtwork.SetActive(false);
-        }
     }
 
     public IEnumerator CloseTransition()
     {
+        isTransitioning = true;
+        IsTransitioning = true;
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+
         float timer = 0f;
 
         while (timer < slideDuration)
@@ -136,5 +158,10 @@ public sealed class TransitionCanvas : MonoBehaviour
 
         rightDoor.anchoredPosition =
             rightOpen;
+
+        isTransitioning = false;
+        IsTransitioning = false;
+
+        gameObject.SetActive(false);
     }
 }

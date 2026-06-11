@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Game.Player;
 
 public sealed class PlayerHealth : MonoBehaviour
 {
@@ -26,13 +27,14 @@ public sealed class PlayerHealth : MonoBehaviour
     private float cameraShakeIntensity = 0.18f;
 
     private int currentHealth;
+    private int baseMaxHealth;
+    private PlayerStats playerStats;
 
     private bool invulnerable;
     private WorldHealthBar healthBar;
     private SpriteRenderer[] spriteRenderers;
     private Coroutine damageFlashRoutine;
     private CameraFollow cameraFollow;
-
     public bool IsDead { get; private set; }
 
     public int CurrentHealth => currentHealth;
@@ -41,6 +43,17 @@ public sealed class PlayerHealth : MonoBehaviour
 
     private void Awake()
     {
+        baseMaxHealth = maxHealth;
+        playerStats =
+            GetComponent<PlayerStats>();
+
+        if (playerStats != null)
+        {
+            playerStats.StatsChanged += HandleStatsChanged;
+        }
+
+        ApplyMaxHealthFromStats(false);
+
         currentHealth = maxHealth;
         spriteRenderers =
             GetComponentsInChildren<SpriteRenderer>(
@@ -55,6 +68,42 @@ public sealed class PlayerHealth : MonoBehaviour
                 0.16f);
 
         healthBar.SetValue(
+            currentHealth,
+            maxHealth);
+
+    }
+
+    private void HandleStatsChanged()
+    {
+        ApplyMaxHealthFromStats(true);
+    }
+
+    private void ApplyMaxHealthFromStats(bool preserveMissingHealth)
+    {
+        int previousMaxHealth = maxHealth;
+        int missingHealth =
+            Mathf.Max(0, previousMaxHealth - currentHealth);
+
+        int bonusHealth =
+            playerStats != null
+                ? Mathf.RoundToInt(playerStats.MaxHealthBonus)
+                : 0;
+
+        maxHealth =
+            Mathf.Max(1, baseMaxHealth + bonusHealth);
+
+        if (!preserveMissingHealth)
+        {
+            return;
+        }
+
+        currentHealth =
+            Mathf.Clamp(
+                maxHealth - missingHealth,
+                0,
+                maxHealth);
+
+        healthBar?.SetValue(
             currentHealth,
             maxHealth);
     }
@@ -201,6 +250,14 @@ public sealed class PlayerHealth : MonoBehaviour
         Debug.Log(
             "[PlayerHealth] Player Died");
 
+        PlayerCharacter playerCharacter =
+            GetComponent<PlayerCharacter>();
+
+        if (playerCharacter != null)
+        {
+            playerCharacter.PlayDeath();
+        }
+
         if (RunResultManager.Instance != null)
         {
             RunResultManager.Instance.SetGameOver();
@@ -229,7 +286,12 @@ public sealed class PlayerHealth : MonoBehaviour
             rb.simulated = false;
         }
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.2f);
+
+        if (RunResultManager.Instance != null)
+        {
+            RunResultManager.Instance.SetGameOver();
+        }
 
         SpriteRenderer sprite =
             GetComponent<SpriteRenderer>();
@@ -264,6 +326,11 @@ public sealed class PlayerHealth : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (playerStats != null)
+        {
+            playerStats.StatsChanged -= HandleStatsChanged;
+        }
+
         if (healthBar != null)
         {
             Destroy(

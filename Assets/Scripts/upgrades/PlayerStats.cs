@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public sealed class PlayerStats : MonoBehaviour
@@ -21,6 +22,8 @@ public sealed class PlayerStats : MonoBehaviour
     public float FireRateMultiplier => fireRateMultiplier;
     public int BonusProjectiles => bonusProjectiles;
 
+    public event Action StatsChanged;
+
     private void Awake()
     {
         Debug.Log("[PlayerStats] Initialized.");
@@ -32,6 +35,8 @@ public sealed class PlayerStats : MonoBehaviour
 
         Debug.Log(
             $"[PlayerStats] Max Health Bonus = {maxHealthBonus}");
+
+        StatsChanged?.Invoke();
     }
 
     public void AddMoveSpeedMultiplier(float amount)
@@ -40,6 +45,8 @@ public sealed class PlayerStats : MonoBehaviour
 
         Debug.Log(
             $"[PlayerStats] Move Speed Multiplier = {moveSpeedMultiplier}");
+
+        StatsChanged?.Invoke();
     }
 
     public void AddDamageMultiplier(float amount)
@@ -48,6 +55,8 @@ public sealed class PlayerStats : MonoBehaviour
 
         Debug.Log(
             $"[PlayerStats] Damage Multiplier = {damageMultiplier}");
+
+        StatsChanged?.Invoke();
     }
 
     public void AddFireRateMultiplier(float amount)
@@ -56,6 +65,8 @@ public sealed class PlayerStats : MonoBehaviour
 
         Debug.Log(
             $"[PlayerStats] Fire Rate Multiplier = {fireRateMultiplier}");
+
+        StatsChanged?.Invoke();
     }
 
     public void AddProjectileCount(int amount)
@@ -64,5 +75,7 @@ public sealed class PlayerStats : MonoBehaviour
 
         Debug.Log(
             $"[PlayerStats] Bonus Projectiles = {bonusProjectiles}");
+
+        StatsChanged?.Invoke();
     }
 }

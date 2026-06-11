@@ -160,6 +160,16 @@ public sealed class CombatRoomManager : MonoBehaviour
     {
         Debug.Log("[CombatRoomManager] Reward Selected");
 
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddRoomClear();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[CombatRoomManager] RunStatsManager missing. Room clear not recorded.");
+        }
+
         if (roomExit != null)
         {
             roomExit.Unlock();

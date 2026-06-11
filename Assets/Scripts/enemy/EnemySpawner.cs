@@ -99,6 +99,16 @@ public class EnemySpawner : MonoBehaviour
 
         aliveEnemies.Remove(enemyHealth);
 
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddKill();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[EnemySpawner] RunStatsManager missing. Kill not recorded.");
+        }
+
         Debug.Log(
             $"Enemy Removed | Alive: {aliveEnemies.Count}");
 

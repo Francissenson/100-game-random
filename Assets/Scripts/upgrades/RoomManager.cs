@@ -101,6 +101,16 @@ public sealed class RoomManager : MonoBehaviour
     {
         currentState = RoomState.Completed;
 
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddRoomClear();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[RoomManager] RunStatsManager missing. Room clear not recorded.");
+        }
+
         Debug.Log(
             "[RoomManager] Room Completed.");
     }
