@@ -11,9 +11,27 @@ public sealed class PlayerHealth : MonoBehaviour
     [SerializeField]
     private float invulnerabilityDuration = 0.5f;
 
+    [Header("Feedback")]
+    [SerializeField]
+    private Vector3 healthBarOffset =
+        new Vector3(0f, 1.35f, 0f);
+
+    [SerializeField]
+    private float damageFlashDuration = 0.08f;
+
+    [SerializeField]
+    private Color damageFlashColor = Color.red;
+
+    [SerializeField]
+    private float cameraShakeIntensity = 0.18f;
+
     private int currentHealth;
 
     private bool invulnerable;
+    private WorldHealthBar healthBar;
+    private SpriteRenderer[] spriteRenderers;
+    private Coroutine damageFlashRoutine;
+    private CameraFollow cameraFollow;
 
     public bool IsDead { get; private set; }
 
@@ -24,6 +42,21 @@ public sealed class PlayerHealth : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+        spriteRenderers =
+            GetComponentsInChildren<SpriteRenderer>(
+                true);
+
+        healthBar =
+            WorldHealthBar.Create(
+                transform,
+                healthBarOffset,
+                new Color(0.25f, 1f, 0.25f, 1f),
+                1.6f,
+                0.16f);
+
+        healthBar.SetValue(
+            currentHealth,
+            maxHealth);
     }
 
     public void TakeDamage(int damage)
@@ -34,9 +67,19 @@ public sealed class PlayerHealth : MonoBehaviour
         }
 
         currentHealth -= damage;
+        currentHealth =
+            Mathf.Max(
+                currentHealth,
+                0);
+
+        healthBar?.SetValue(
+            currentHealth,
+            maxHealth);
 
         Debug.Log(
             $"[PlayerHealth] Took {damage} Damage. HP = {currentHealth}");
+
+        PlayDamageFeedback();
 
         if (currentHealth <= 0)
         {
@@ -49,6 +92,71 @@ public sealed class PlayerHealth : MonoBehaviour
 
         StartCoroutine(
             InvulnerabilityRoutine());
+    }
+
+    private void PlayDamageFeedback()
+    {
+        if (cameraFollow == null)
+        {
+            cameraFollow =
+                FindFirstObjectByType<CameraFollow>();
+        }
+
+        if (cameraFollow != null)
+        {
+            cameraFollow.Shake(
+                cameraShakeIntensity);
+        }
+
+        if (damageFlashRoutine != null)
+        {
+            StopCoroutine(
+                damageFlashRoutine);
+        }
+
+        damageFlashRoutine =
+            StartCoroutine(
+                DamageFlashRoutine());
+    }
+
+    private IEnumerator DamageFlashRoutine()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            yield break;
+        }
+
+        Color[] originalColors =
+            new Color[spriteRenderers.Length];
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] == null)
+            {
+                continue;
+            }
+
+            originalColors[i] =
+                spriteRenderers[i].color;
+            spriteRenderers[i].color =
+                damageFlashColor;
+        }
+
+        yield return new WaitForSeconds(
+            damageFlashDuration);
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] == null)
+            {
+                continue;
+            }
+
+            spriteRenderers[i].color =
+                originalColors[i];
+        }
+
+        damageFlashRoutine = null;
     }
 
     private IEnumerator InvulnerabilityRoutine()
@@ -69,6 +177,10 @@ public sealed class PlayerHealth : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+
+        healthBar?.SetValue(
+            currentHealth,
+            maxHealth);
     }
 
     private void Die()
@@ -148,5 +260,14 @@ public sealed class PlayerHealth : MonoBehaviour
 
         SceneManager.LoadScene(
             "EndRunScene");
+    }
+
+    private void OnDestroy()
+    {
+        if (healthBar != null)
+        {
+            Destroy(
+                healthBar.gameObject);
+        }
     }
 }
