@@ -11,7 +11,7 @@ public sealed class CameraFollow : MonoBehaviour
 
     [Header("Shake")]
     [SerializeField]
-    private float shakeIntensity = 0.18f;
+    private float shakeIntensity = 0.05f;
 
     [SerializeField]
     private float shakeDuration = 0.12f;
@@ -57,15 +57,21 @@ public sealed class CameraFollow : MonoBehaviour
             }
         }
 
-        Vector3 desiredPosition =
+        Vector3 basePosition =
             target.position + offset;
+
+        Vector3 followPosition =
+            Vector3.Lerp(
+                transform.position,
+                basePosition,
+                followSpeed * Time.deltaTime);
 
         if (shakeTimer > 0f)
         {
             Vector2 shakeOffset =
                 Random.insideUnitCircle * currentShakeIntensity;
 
-            desiredPosition +=
+            followPosition +=
                 new Vector3(
                     shakeOffset.x,
                     shakeOffset.y,
@@ -75,9 +81,6 @@ public sealed class CameraFollow : MonoBehaviour
         }
 
         transform.position =
-            Vector3.Lerp(
-                transform.position,
-                desiredPosition,
-                followSpeed * Time.deltaTime);
+            followPosition;
     }
 }

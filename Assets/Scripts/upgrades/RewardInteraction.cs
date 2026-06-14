@@ -125,6 +125,8 @@ public sealed class RewardInteraction : MonoBehaviour
         weaponManager.EquipLootWeapon(
             weaponInstance);
 
+        AudioManager.Instance?.PlayWeaponPickupSfx();
+
         Debug.Log(
             $"[RewardInteraction] Equipped Weapon: {weaponData.weaponName}");
     }

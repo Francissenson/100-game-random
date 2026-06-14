@@ -33,17 +33,29 @@ public class WeaponManager : MonoBehaviour
 
     private void Start()
     {
-        EquipSlot(1);
+        EquipSlot(1, false);
     }
 
     private void Update()
     {
+        if (AudioManager.IsSceneLoading ||
+            TransitionCanvas.IsTransitioning ||
+            PauseManager.IsPaused)
+        {
+            return;
+        }
+
         HandleKeyboardSwitching();
         HandleMouseWheelSwitching();
     }
 
     public void Attack()
     {
+        if (PauseManager.IsPaused)
+        {
+            return;
+        }
+
         currentWeapon?.Attack();
     }
 
@@ -59,6 +71,11 @@ public class WeaponManager : MonoBehaviour
         slot3Weapon = newWeapon;
 
         slot3Weapon.gameObject.SetActive(false);
+
+        if (!slot3WasActive)
+        {
+            AudioManager.Instance?.PlayWeaponSwap();
+        }
 
         if (slot3WasActive)
         {
@@ -103,46 +120,44 @@ public class WeaponManager : MonoBehaviour
 
     private void EquipNextWeapon()
     {
-        int startSlot = currentSlot;
+        int nextSlot = currentSlot;
 
-        do
+        for (int i = 0; i < 3; i++)
         {
-            currentSlot++;
+            nextSlot++;
 
-            if (currentSlot > 3)
+            if (nextSlot > 3)
             {
-                currentSlot = 1;
+                nextSlot = 1;
             }
 
-            if (HasWeaponInSlot(currentSlot))
+            if (HasWeaponInSlot(nextSlot))
             {
-                EquipSlot(currentSlot);
+                EquipSlot(nextSlot);
                 return;
             }
-
-        } while (currentSlot != startSlot);
+        }
     }
 
     private void EquipPreviousWeapon()
     {
-        int startSlot = currentSlot;
+        int previousSlot = currentSlot;
 
-        do
+        for (int i = 0; i < 3; i++)
         {
-            currentSlot--;
+            previousSlot--;
 
-            if (currentSlot < 1)
+            if (previousSlot < 1)
             {
-                currentSlot = 3;
+                previousSlot = 3;
             }
 
-            if (HasWeaponInSlot(currentSlot))
+            if (HasWeaponInSlot(previousSlot))
             {
-                EquipSlot(currentSlot);
+                EquipSlot(previousSlot);
                 return;
             }
-
-        } while (currentSlot != startSlot);
+        }
     }
 
     private bool HasWeaponInSlot(int slot)
@@ -156,8 +171,16 @@ public class WeaponManager : MonoBehaviour
         };
     }
 
-    private void EquipSlot(int slot)
+    private void EquipSlot(
+        int slot,
+        bool playSwapSfx = true)
     {
+        if (!HasWeaponInSlot(slot))
+        {
+            return;
+        }
+
+        int previousSlot = currentSlot;
         if (slot1Weapon != null)
             slot1Weapon.gameObject.SetActive(false);
 
@@ -186,6 +209,12 @@ public class WeaponManager : MonoBehaviour
         {
             currentWeapon.gameObject.SetActive(true);
             currentSlot = slot;
+
+            if (playSwapSfx &&
+                previousSlot != currentSlot)
+            {
+                AudioManager.Instance?.PlayWeaponSwap();
+            }
         }
     }
 }

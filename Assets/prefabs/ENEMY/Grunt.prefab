@@ -48,7 +48,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2226042877871655936
 Transform:
   m_ObjectHideFlags: 0
@@ -281,8 +281,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Offset: {x: 0, y: 0.85}
+  m_Size: {x: 0.85, y: 1.88}
   m_Direction: 0
 --- !u!114 &9105283092071065972
 MonoBehaviour:
@@ -300,6 +300,9 @@ MonoBehaviour:
   damageNumberPrefab: {fileID: 0}
   damageNumberOffset: {x: 0, y: 0.8, z: 0}
   healthBarOffset: {x: 0, y: 1.1, z: 0}
+  stunDuration: 0.15
+  damageFlashDuration: 0.08
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &5934366018204099256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -313,6 +316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GruntEnemy
   visuals: {fileID: 8504066754590149215}
+  stunDuration: 0.15
   moveSpeed: 2.5
   attackRange: 1.25
   attackPivot: {fileID: 1629341694223630422}
@@ -322,6 +326,9 @@ MonoBehaviour:
   attackCooldown: 1
   swingAngle: 90
   swingDuration: 0.15
+  idleState: Base Layer.idle
+  runState: Base Layer.run
+  attackState: Base Layer.attack
 --- !u!1 &7914261272419580929
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,8 +355,8 @@ Transform:
   m_GameObject: {fileID: 7914261272419580929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.23, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.48, y: 0.08, z: 0}
+  m_LocalScale: {x: 1.0636, y: 1.0636, z: 1.0636}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1629341694223630422}
@@ -402,7 +409,7 @@ GameObject:
   m_Layer: 6
   m_Name: pivot
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3443629218296621865, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -415,7 +422,7 @@ Transform:
   m_GameObject: {fileID: 8655361840316162739}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.68, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -432,6 +439,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3777849457780237872}
   - component: {fileID: 3232124028695939497}
+  - component: {fileID: 7677793555903334662}
   m_Layer: 6
   m_Name: grunt enemyvisual
   m_TagString: Untagged
@@ -504,9 +512,9 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Sprite: {fileID: 547910251586419615, guid: b4450e5f6c34022488c47da9a2cc3950, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 2}
@@ -514,3 +522,25 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &7677793555903334662
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8972928196284926127}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0dd3f95c4e38e404e97f18f08ccf82e8, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

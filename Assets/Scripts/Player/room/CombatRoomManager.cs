@@ -150,6 +150,8 @@ public sealed class CombatRoomManager : MonoBehaviour
     {
         Debug.Log("[CombatRoomManager] All Waves Completed");
 
+        GameHUD.Instance?.PlayRoomClearFlash();
+
         if (rewardSpawner != null)
         {
             rewardSpawner.SpawnUpgradeRewards();

@@ -21,6 +21,8 @@ public class ShotgunWeapon : Weapon
 
     protected override void PerformAttack()
     {
+        AudioManager.Instance?.PlayGunshot();
+
         if (projectilePrefab == null)
         {
             Debug.LogWarning(

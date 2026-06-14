@@ -69,12 +69,23 @@ public sealed class BruteBoss : BossBase
             "[BruteBoss] Initialized.");
     }
 
+    protected override void Start()
+    {
+        base.Start();
+    }
+
     protected override void Update()
     {
         base.Update();
 
         if (player == null)
         {
+            return;
+        }
+
+        if (IsStunned())
+        {
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -133,6 +144,12 @@ public sealed class BruteBoss : BossBase
 
     private void HandleMovement()
     {
+        if (IsStunned())
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         float distance =
             DistanceToPlayer();
 
@@ -140,6 +157,8 @@ public sealed class BruteBoss : BossBase
         {
             currentState =
                 BossState.Chasing;
+
+            SetWalkAnimation();
 
             Vector2 direction =
                 (player.position - transform.position).normalized;
@@ -151,6 +170,7 @@ public sealed class BruteBoss : BossBase
         {
             rb.linearVelocity =
                 Vector2.zero;
+            SetIdleAnimation();
 
             if (!attackRoutineRunning)
             {
@@ -166,6 +186,7 @@ public sealed class BruteBoss : BossBase
 
         currentState =
             BossState.Windup;
+        SetAttackAnimation();
 
         lockedTargetPosition =
             player.position;
@@ -176,7 +197,7 @@ public sealed class BruteBoss : BossBase
         yield return StartCoroutine(
             RotateToTarget());
 
-        yield return new WaitForSeconds(
+        yield return WaitRespectingStun(
             currentWindupTime);
 
         currentState =
@@ -186,7 +207,7 @@ public sealed class BruteBoss : BossBase
 
         if (currentPhase == BossPhase.Phase2)
         {
-            yield return new WaitForSeconds(
+            yield return WaitRespectingStun(
                 0.25f);
 
             yield return StartCoroutine(
@@ -195,11 +216,12 @@ public sealed class BruteBoss : BossBase
 
         currentState =
             BossState.Recovery;
+        SetIdleAnimation();
 
         Debug.Log(
             "[BruteBoss] Recovery.");
 
-        yield return new WaitForSeconds(
+        yield return WaitRespectingStun(
             recoveryTime);
 
         currentState =
@@ -235,12 +257,38 @@ public sealed class BruteBoss : BossBase
                    attackPivot.rotation,
                    targetRotation) > 1f)
         {
+            if (IsStunned())
+            {
+                rb.linearVelocity = Vector2.zero;
+                yield return null;
+                continue;
+            }
+
             attackPivot.rotation =
                 Quaternion.RotateTowards(
                     attackPivot.rotation,
                     targetRotation,
                     rotationSpeed * Time.deltaTime);
 
+            yield return null;
+        }
+    }
+
+    private IEnumerator WaitRespectingStun(
+        float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (IsStunned())
+            {
+                rb.linearVelocity = Vector2.zero;
+                yield return null;
+                continue;
+            }
+
+            elapsed += Time.deltaTime;
             yield return null;
         }
     }
@@ -257,24 +305,21 @@ public sealed class BruteBoss : BossBase
 
         foreach (Collider2D hit in hits)
         {
-            if (!hit.CompareTag("Player"))
+            PlayerHealth playerHealth =
+                hit.GetComponentInParent<PlayerHealth>();
+
+            if (playerHealth == null)
             {
                 continue;
             }
 
-            IDamageable damageable =
-                hit.GetComponentInParent<IDamageable>();
-
-            if (damageable == null)
-            {
-                continue;
-            }
-
-            damageable.TakeDamage(
+            playerHealth.TakeDamage(
                 currentDamage);
 
             Debug.Log(
                 $"[BruteBoss] Hit Player For {currentDamage}");
+
+            break;
         }
     }
 

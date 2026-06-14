@@ -31,6 +31,12 @@ public sealed class SceneLoader : MonoBehaviour
     private IEnumerator LoadSceneRoutine(
         string sceneName)
     {
+        PauseManager.Instance?.SetPaused(
+            false,
+            true);
+
+        AudioManager.Instance?.BeginSceneLoadDucking(true);
+
         if (transitionCanvas != null)
         {
             yield return StartCoroutine(
@@ -42,11 +48,15 @@ public sealed class SceneLoader : MonoBehaviour
                 sceneName);
 
         operation.allowSceneActivation = false;
+        float minimumLoadTime =
+            transitionCanvas != null
+                ? transitionCanvas.MinimumLoadTime
+                : 0f;
 
         float timer = 0f;
 
         while (operation.progress < 0.9f ||
-               timer < transitionCanvas.MinimumLoadTime)
+               timer < minimumLoadTime)
         {
             timer += Time.deltaTime;
 
@@ -67,5 +77,7 @@ public sealed class SceneLoader : MonoBehaviour
             yield return StartCoroutine(
                 transitionCanvas.OpenTransition());
         }
+
+        AudioManager.Instance?.EndSceneLoadDucking(true);
     }
 }

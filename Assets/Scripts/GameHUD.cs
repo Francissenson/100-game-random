@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,14 +11,24 @@ public sealed class GameHUD : MonoBehaviour
 
     private static GameHUD instance;
 
+    public static GameHUD Instance => instance;
+
     private PlayerHealth playerHealth;
     private WeaponManager weaponManager;
+    private readonly List<WaveManager> waveManagers =
+        new List<WaveManager>();
 
     private GameObject canvasObject;
     private RectTransform healthFillRect;
     private TMP_Text healthText;
     private TMP_Text goldText;
+    private TMP_Text wavePromptText;
+    private CanvasGroup roomClearFlashGroup;
     private SlotView[] slots;
+    private float wavePromptCountdownEndTime;
+    private float wavePromptVisibleUntil;
+    private int wavePromptNumber;
+    private Coroutine roomClearFlashRoutine;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -49,6 +61,7 @@ public sealed class GameHUD : MonoBehaviour
     {
         if (instance == this)
         {
+            UnsubscribeWaveManagers();
             SceneManager.sceneLoaded -= OnSceneLoaded;
             instance = null;
         }
@@ -56,6 +69,7 @@ public sealed class GameHUD : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        HideWavePrompt();
         RefreshTargets();
     }
 
@@ -81,6 +95,7 @@ public sealed class GameHUD : MonoBehaviour
         RefreshHealth();
         RefreshGold();
         RefreshWeaponSlots();
+        RefreshWavePrompt();
     }
 
     private bool ShouldShowHud()
@@ -91,6 +106,11 @@ public sealed class GameHUD : MonoBehaviour
         }
 
         if (TransitionCanvas.IsTransitioning)
+        {
+            return false;
+        }
+
+        if (PauseManager.IsPaused)
         {
             return false;
         }
@@ -115,9 +135,9 @@ public sealed class GameHUD : MonoBehaviour
         string sceneName =
             SceneManager.GetActiveScene().name;
 
-        return sceneName != "MainMenu" &&
-               sceneName != "EndRunScene" &&
-               !sceneName.ToLower().Contains("loading");
+        return sceneName.StartsWith("CombatRoom") ||
+               sceneName.StartsWith("TreasureRoom") ||
+               sceneName == "BossRoom";
     }
 
     private void RefreshTargets()
@@ -127,6 +147,154 @@ public sealed class GameHUD : MonoBehaviour
 
         weaponManager =
             FindFirstObjectByType<WeaponManager>();
+
+        SetWaveManagers(
+            FindObjectsByType<WaveManager>(
+                FindObjectsSortMode.None));
+    }
+
+    private void SetWaveManagers(
+        WaveManager[] sceneWaveManagers)
+    {
+        UnsubscribeWaveManagers();
+
+        foreach (WaveManager waveManager in sceneWaveManagers)
+        {
+            if (waveManager == null)
+            {
+                continue;
+            }
+
+            waveManager.OnWaveStartingSoon +=
+                HandleWaveStartingSoon;
+
+            waveManager.OnWaveStarted +=
+                HandleWaveStarted;
+
+            waveManagers.Add(
+                waveManager);
+        }
+    }
+
+    private void UnsubscribeWaveManagers()
+    {
+        foreach (WaveManager waveManager in waveManagers)
+        {
+            if (waveManager == null)
+            {
+                continue;
+            }
+
+            waveManager.OnWaveStartingSoon -=
+                HandleWaveStartingSoon;
+
+            waveManager.OnWaveStarted -=
+                HandleWaveStarted;
+        }
+
+        waveManagers.Clear();
+    }
+
+    private void HandleWaveStartingSoon(
+        int waveNumber,
+        float delay)
+    {
+        wavePromptNumber =
+            waveNumber;
+
+        float duration =
+            Mathf.Max(
+                delay,
+                0f);
+
+        wavePromptCountdownEndTime =
+            Time.time + duration;
+
+        wavePromptVisibleUntil =
+            wavePromptCountdownEndTime;
+
+        wavePromptText.gameObject.SetActive(
+            true);
+    }
+
+    private void HandleWaveStarted(
+        int waveNumber)
+    {
+        wavePromptNumber =
+            waveNumber;
+
+        wavePromptVisibleUntil =
+            Time.time + 1.2f;
+
+        wavePromptText.text =
+            $"Wave {wavePromptNumber}!";
+
+        wavePromptText.gameObject.SetActive(
+            true);
+    }
+
+    private void RefreshWavePrompt()
+    {
+        if (wavePromptText == null)
+        {
+            return;
+        }
+
+        if (Time.time >= wavePromptVisibleUntil)
+        {
+            wavePromptText.gameObject.SetActive(
+                false);
+
+            return;
+        }
+
+        if (Time.time < wavePromptCountdownEndTime)
+        {
+            int secondsRemaining =
+                Mathf.CeilToInt(
+                    wavePromptCountdownEndTime - Time.time);
+
+            wavePromptText.text =
+                $"Wave {wavePromptNumber} starts in {secondsRemaining}";
+        }
+    }
+
+    private void HideWavePrompt()
+    {
+        if (wavePromptText == null)
+        {
+            return;
+        }
+
+        wavePromptText.gameObject.SetActive(
+            false);
+
+        wavePromptText.text =
+            string.Empty;
+
+        wavePromptCountdownEndTime =
+            0f;
+
+        wavePromptVisibleUntil =
+            0f;
+    }
+
+    public void PlayRoomClearFlash()
+    {
+        if (roomClearFlashGroup == null)
+        {
+            return;
+        }
+
+        if (roomClearFlashRoutine != null)
+        {
+            StopCoroutine(
+                roomClearFlashRoutine);
+        }
+
+        roomClearFlashRoutine =
+            StartCoroutine(
+                RoomClearFlashRoutine());
     }
 
     private void RefreshHealth()
@@ -218,6 +386,8 @@ public sealed class GameHUD : MonoBehaviour
         BuildHealthPanel(canvasObject.transform);
         BuildGoldPanel(canvasObject.transform);
         BuildWeaponSlots(canvasObject.transform);
+        BuildWavePrompt(canvasObject.transform);
+        BuildRoomClearFlash(canvasObject.transform);
     }
 
     private void BuildHealthPanel(Transform parent)
@@ -300,6 +470,112 @@ public sealed class GameHUD : MonoBehaviour
             slots[i] =
                 SlotView.Create(container);
         }
+    }
+
+    private void BuildWavePrompt(Transform parent)
+    {
+        wavePromptText =
+            CreateText(
+                parent,
+                "WavePromptText",
+                string.Empty,
+                48,
+                TextAlignmentOptions.Center);
+
+        RectTransform textRect =
+            wavePromptText.rectTransform;
+
+        Anchor(
+            textRect,
+            new Vector2(0.5f, 0.78f),
+            new Vector2(0.5f, 0.78f),
+            Vector2.zero);
+
+        textRect.sizeDelta =
+            new Vector2(760f, 90f);
+
+        wavePromptText.color =
+            new Color(1f, 0.86f, 0.28f, 1f);
+
+        Outline outline =
+            wavePromptText.gameObject.AddComponent<Outline>();
+        outline.effectColor =
+            new Color(0f, 0f, 0f, 0.9f);
+        outline.effectDistance =
+            new Vector2(2f, -2f);
+
+        wavePromptText.gameObject.SetActive(
+            false);
+    }
+
+    private void BuildRoomClearFlash(Transform parent)
+    {
+        GameObject flashObject =
+            new GameObject(
+                "RoomClearFlash",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(CanvasGroup));
+
+        flashObject.transform.SetParent(
+            parent,
+            false);
+        flashObject.transform.SetAsLastSibling();
+
+        RectTransform rect =
+            flashObject.GetComponent<RectTransform>();
+
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.localScale = Vector3.one;
+
+        Image image =
+            flashObject.GetComponent<Image>();
+        image.color = new Color(1f, 1f, 1f, 0f);
+        image.raycastTarget = false;
+
+        roomClearFlashGroup =
+            flashObject.GetComponent<CanvasGroup>();
+        roomClearFlashGroup.alpha = 0f;
+        roomClearFlashGroup.interactable = false;
+        roomClearFlashGroup.blocksRaycasts = false;
+    }
+
+    private IEnumerator RoomClearFlashRoutine()
+    {
+        const float fadeInDuration = 0.5f;
+        const float fadeOutDuration = 0.5f;
+        const float peakAlpha = 0.88f;
+
+        float timer = 0f;
+
+        while (timer < fadeInDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            roomClearFlashGroup.alpha =
+                Mathf.Lerp(0f, peakAlpha, timer / fadeInDuration);
+
+            yield return null;
+        }
+
+        timer = 0f;
+
+        while (timer < fadeOutDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            roomClearFlashGroup.alpha =
+                Mathf.Lerp(peakAlpha, 0f, timer / fadeOutDuration);
+
+            yield return null;
+        }
+
+        roomClearFlashGroup.alpha = 0f;
+        roomClearFlashRoutine = null;
     }
 
     private RectTransform CreatePanel(Transform parent, string objectName, Color color)

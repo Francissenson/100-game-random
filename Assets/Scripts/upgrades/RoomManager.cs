@@ -94,6 +94,8 @@ public sealed class RoomManager : MonoBehaviour
         Debug.Log(
             "[RoomManager] Combat Complete.");
 
+        GameHUD.Instance?.PlayRoomClearFlash();
+
         rewardSpawner.SpawnUpgradeRewards();
     }
 

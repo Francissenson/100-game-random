@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(EnemyHealth))]
@@ -6,10 +7,13 @@ public class EnemyBase : MonoBehaviour
 {
     [Header("Visuals")]
     [SerializeField] private Transform visuals;
+    [SerializeField] private float stunDuration = 0.15f;
 
     protected Transform target;
     protected EnemyHealth enemyHealth;
     protected Rigidbody2D rb;
+    private bool stunned;
+    private Coroutine stunRoutine;
 
     protected virtual void Awake()
     {
@@ -68,5 +72,46 @@ public class EnemyBase : MonoBehaviour
     {
         return enemyHealth != null &&
                !enemyHealth.IsDead;
+    }
+
+    protected bool IsStunned()
+    {
+        return stunned;
+    }
+
+    public void Stun(float duration)
+    {
+        float stunTime =
+            duration > 0f
+                ? duration
+                : stunDuration;
+
+        if (stunRoutine != null)
+        {
+            StopCoroutine(
+                stunRoutine);
+        }
+
+        stunRoutine =
+            StartCoroutine(
+                StunRoutine(
+                    stunTime));
+    }
+
+    private IEnumerator StunRoutine(
+        float duration)
+    {
+        stunned = true;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        yield return new WaitForSeconds(
+            duration);
+
+        stunned = false;
+        stunRoutine = null;
     }
 }

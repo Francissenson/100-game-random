@@ -20,6 +20,14 @@ namespace Game.Player
 
         private void Update()
         {
+            if (AudioManager.IsSceneLoading ||
+                TransitionCanvas.IsTransitioning ||
+                PauseManager.IsPaused)
+            {
+                _character.SetMovementDirection(Vector2.zero);
+                return;
+            }
+
             ReadMovementInput();
             ReadDashInput();
         }

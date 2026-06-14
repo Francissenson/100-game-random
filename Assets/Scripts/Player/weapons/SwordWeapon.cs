@@ -45,6 +45,8 @@ public sealed class SwordWeapon : Weapon
     {
         Debug.Log("Sword Attack");
 
+        AudioManager.Instance?.PlaySwordSlash();
+
         PlaySwing();
 
         if (swordHitbox != null)

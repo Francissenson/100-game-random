@@ -44,6 +44,8 @@ public sealed class EndRunPortal : MonoBehaviour
             RunResultManager.Instance.SetVictory();
         }
 
+        AudioManager.Instance?.BeginSceneLoadDucking(true);
         SceneManager.LoadScene("EndRunScene");
+        AudioManager.Instance?.EndSceneLoadDucking(true);
     }
 }

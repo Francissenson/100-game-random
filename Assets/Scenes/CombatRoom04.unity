@@ -383,7 +383,7 @@ Transform:
   m_GameObject: {fileID: 170541602}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -26.56, y: -3.8, z: 0}
+  m_LocalPosition: {x: -8.8, y: -11.61, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1002,7 +1002,7 @@ Transform:
   m_GameObject: {fileID: 1789627364}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -19.98, y: 4.3, z: 0}
+  m_LocalPosition: {x: -2.41, y: -3.66, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1293,7 +1293,7 @@ TilemapCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7271436313525491795}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -1575,59 +1575,9 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 1328157024731674213}
-    m_ColliderPaths:
-    - - X: -2162500
-        Y: 57250000
-      - X: -2475000
-        Y: 61000000
-      - X: -2162500
-        Y: 61000000
-      - X: 1900000
-        Y: 64437500
-      - X: 5962500
-        Y: 61000000
-      - X: 6275000
-        Y: 61000000
-      - X: 5962500
-        Y: 53812500
-      - X: 5962500
-        Y: 51312500
-      - X: 6275000
-        Y: 51000000
-      - X: 15025001
-        Y: 51000000
-      - X: 15025001
-        Y: 70375000
-      - X: 14400001
-        Y: 71000000
-      - X: -10599999
-        Y: 71000000
-      - X: -11224999
-        Y: 70375000
-      - X: -11224999
-        Y: 51000000
-      - X: -2162500
-        Y: 51000000
+  m_ColliderPaths: []
   m_CompositePaths:
-    m_Paths:
-    - - {x: -0.2162793, y: 5.1}
-      - {x: -0.2162501, y: 5.7250004}
-      - {x: -0.2474677, y: 6.1}
-      - {x: -0.2162428, y: 6.100006}
-      - {x: 0.1900182, y: 6.4437346}
-      - {x: 0.5962594, y: 6.1}
-      - {x: 0.6274986, y: 6.0999694}
-      - {x: 0.59625, y: 5.3812513}
-      - {x: 0.5962576, y: 5.1312423}
-      - {x: 0.6275108, y: 5.1}
-      - {x: 1.5025002, y: 5.1000295}
-      - {x: 1.5024925, y: 7.037507}
-      - {x: 1.4399893, y: 7.1}
-      - {x: -1.0600075, y: 7.0999923}
-      - {x: -1.1225, y: 7.03749}
-      - {x: -1.1224706, y: 5.1}
+    m_Paths: []
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0

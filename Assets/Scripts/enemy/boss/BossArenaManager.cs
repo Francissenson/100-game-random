@@ -56,6 +56,9 @@ public sealed class BossArenaManager : MonoBehaviour
             return;
         }
 
+        GameHUD.Instance?.PlayRoomClearFlash();
+        AudioManager.Instance?.PlayBossAlarm();
+
         StartCoroutine(
             SpawnBossAfterDelay());
     }
@@ -90,6 +93,8 @@ public sealed class BossArenaManager : MonoBehaviour
 
             return;
         }
+
+        AudioManager.Instance?.PlayBossMusic();
 
         currentBoss =
             Instantiate(

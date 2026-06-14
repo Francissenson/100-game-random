@@ -30,6 +30,13 @@ namespace Game.Player
 
         public void TryDash(Vector2 direction)
         {
+            if (AudioManager.IsSceneLoading ||
+                TransitionCanvas.IsTransitioning ||
+                PauseManager.IsPaused)
+            {
+                return;
+            }
+
             if (_isDashing)
             {
                 return;
@@ -51,6 +58,8 @@ namespace Game.Player
         private IEnumerator DashRoutine(Vector2 direction)
         {
             _isDashing = true;
+
+            AudioManager.Instance?.PlayDash();
 
             Vector2 startPosition = _rigidbody.position;
             Vector2 targetPosition = startPosition + direction * dashDistance;

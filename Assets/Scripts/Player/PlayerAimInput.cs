@@ -18,6 +18,13 @@ namespace Game.Player
 
         private void Update()
         {
+            if (AudioManager.IsSceneLoading ||
+                TransitionCanvas.IsTransitioning ||
+                PauseManager.IsPaused)
+            {
+                return;
+            }
+
             if (_mainCamera == null)
             {
                 _mainCamera = Camera.main;

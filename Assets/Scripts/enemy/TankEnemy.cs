@@ -28,13 +28,34 @@ public class TankEnemy : EnemyBase
     [SerializeField] private float swingAngle = 120f;
     [SerializeField] private float swingDuration = 0.3f;
 
+    [Header("Animation")]
+    [SerializeField] private string idleState = "Base Layer.IDLE";
+    [SerializeField] private string runState = "Base Layer.RUN";
+    [SerializeField] private string attackState = "Base Layer.ATTACK";
+
     private bool isAttacking;
 
     private Vector2 lockedTargetPosition;
+    private Animator animator;
+    private string currentAnimationState;
 
     protected override void Start()
     {
         base.Start();
+
+        animator =
+            GetComponentInChildren<Animator>(true);
+
+        if (animator == null)
+        {
+            Debug.LogError(
+                $"[{name}] Tank animator missing.");
+            return;
+        }
+
+        SetAnimation(
+            idleState,
+            true);
 
         Debug.Log($"{name} Tank Initialized");
     }
@@ -45,6 +66,9 @@ public class TankEnemy : EnemyBase
             return;
 
         if (!IsAlive())
+            return;
+
+        if (IsStunned())
             return;
 
         if (isAttacking)
@@ -58,9 +82,11 @@ public class TankEnemy : EnemyBase
         if (distance > attackRange)
         {
             MoveTowardsPlayer();
+            SetAnimation(runState);
         }
         else
         {
+            SetAnimation(idleState);
             StartCoroutine(AttackRoutine());
         }
     }
@@ -80,10 +106,15 @@ public class TankEnemy : EnemyBase
     private IEnumerator AttackRoutine()
     {
         isAttacking = true;
+        SetAnimation(
+            attackState,
+            true);
 
         lockedTargetPosition = target.position;
 
         Debug.Log("Tank Target Position Locked");
+
+        AudioManager.Instance?.PlayTankAlarm();
 
         yield return RotateAttackPivotToTarget();
 
@@ -102,6 +133,7 @@ public class TankEnemy : EnemyBase
         Debug.Log("Tank Recovery Complete");
 
         isAttacking = false;
+        SetAnimation(idleState);
     }
 
     private IEnumerator RotateAttackPivotToTarget()
@@ -116,6 +148,12 @@ public class TankEnemy : EnemyBase
 
         while (true)
         {
+            if (IsStunned())
+            {
+                yield return null;
+                continue;
+            }
+
             Vector2 direction =
                 lockedTargetPosition -
                 (Vector2)attackPivot.position;
@@ -179,6 +217,12 @@ public class TankEnemy : EnemyBase
 
         while (elapsed < swingDuration)
         {
+            if (IsStunned())
+            {
+                yield return null;
+                continue;
+            }
+
             elapsed += Time.deltaTime;
 
             float t = elapsed / swingDuration;
@@ -260,5 +304,29 @@ public class TankEnemy : EnemyBase
         Gizmos.DrawWireSphere(
             attackPoint.position,
             attackRadius);
+    }
+
+    private void SetAnimation(
+        string stateName,
+        bool force = false)
+    {
+        if (animator == null ||
+            string.IsNullOrWhiteSpace(stateName))
+        {
+            return;
+        }
+
+        if (!force &&
+            currentAnimationState == stateName)
+        {
+            return;
+        }
+
+        animator.Play(
+            stateName,
+            0,
+            0f);
+
+        currentAnimationState = stateName;
     }
 }

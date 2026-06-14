@@ -19,6 +19,8 @@ public class SMGWeapon : Weapon
 
     protected override void PerformAttack()
     {
+        AudioManager.Instance?.PlayGunshot();
+
         if (projectilePrefab == null || firePoint == null)
         {
             Debug.LogWarning(

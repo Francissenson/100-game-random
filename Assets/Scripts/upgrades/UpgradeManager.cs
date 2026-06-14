@@ -127,5 +127,7 @@ public sealed class UpgradeManager : MonoBehaviour
                     $"[UpgradeManager] Unsupported Upgrade Type: {upgrade.upgradeType}");
                 break;
         }
+
+        AudioManager.Instance?.PlayUpgradeSfx();
     }
 }

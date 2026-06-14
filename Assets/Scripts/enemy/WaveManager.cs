@@ -18,6 +18,7 @@ public sealed class WaveManager : MonoBehaviour
 
     private int currentWaveIndex = -1;
 
+    public event Action<int, float> OnWaveStartingSoon;
     public event Action<int> OnWaveStarted;
     public event Action<int> OnWaveCompleted;
     public event Action<WaveReward> OnRewardGranted;
@@ -79,6 +80,10 @@ public sealed class WaveManager : MonoBehaviour
 
         Debug.Log(
             $"[WaveManager] Next wave starting in {waveStartDelay} seconds.");
+
+        OnWaveStartingSoon?.Invoke(
+            currentWaveIndex + 1,
+            waveStartDelay);
 
         yield return new WaitForSeconds(
             waveStartDelay);

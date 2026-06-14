@@ -353,6 +353,8 @@ public sealed class EndRunUI : MonoBehaviour
 
     public void ReturnToMenu()
     {
+        AudioManager.Instance?.PlayButtonClick();
+
         if (RunStatsManager.Instance != null)
         {
             RunStatsManager.Instance.ResetRun();
@@ -363,6 +365,8 @@ public sealed class EndRunUI : MonoBehaviour
             RunResultManager.Instance.ResetResult();
         }
 
+        AudioManager.Instance?.BeginSceneLoadDucking(true);
         SceneManager.LoadScene("MainMenu");
+        AudioManager.Instance?.EndSceneLoadDucking(true);
     }
 }

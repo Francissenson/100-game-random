@@ -11,6 +11,13 @@ public class PlayerCombatInput : MonoBehaviour
 
     private void Update()
     {
+        if (AudioManager.IsSceneLoading ||
+            TransitionCanvas.IsTransitioning ||
+            PauseManager.IsPaused)
+        {
+            return;
+        }
+
         if (weaponManager == null)
             return;
 

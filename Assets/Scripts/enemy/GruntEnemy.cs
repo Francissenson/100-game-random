@@ -21,8 +21,34 @@ public class GruntEnemy : EnemyBase
     [SerializeField] private float swingAngle = 90f;
     [SerializeField] private float swingDuration = 0.15f;
 
+    [Header("Animation")]
+    [SerializeField] private string idleState = "Base Layer.idle";
+    [SerializeField] private string runState = "Base Layer.run";
+    [SerializeField] private string attackState = "Base Layer.attack";
+
     private bool isAttacking;
     private float nextAttackTime;
+    private Animator animator;
+    private string currentAnimationState;
+
+    protected override void Start()
+    {
+        base.Start();
+
+        animator =
+            GetComponentInChildren<Animator>(true);
+
+        if (animator == null)
+        {
+            Debug.LogError(
+                $"[{name}] Grunt animator missing.");
+            return;
+        }
+
+        SetAnimation(
+            idleState,
+            true);
+    }
 
     private void FixedUpdate()
     {
@@ -32,6 +58,9 @@ public class GruntEnemy : EnemyBase
         if (!IsAlive())
             return;
 
+        if (IsStunned())
+            return;
+
         float distance = Vector2.Distance(
             rb.position,
             target.position);
@@ -39,9 +68,11 @@ public class GruntEnemy : EnemyBase
         if (distance > attackRange)
         {
             MoveTowardsPlayer();
+            SetAnimation(runState);
         }
         else
         {
+            SetAnimation(idleState);
             TryAttack();
         }
     }
@@ -78,6 +109,9 @@ public class GruntEnemy : EnemyBase
     private IEnumerator AttackRoutine()
     {
         isAttacking = true;
+        SetAnimation(
+            attackState,
+            true);
 
         FaceAttackPivotTowardsPlayer();
 
@@ -98,6 +132,12 @@ public class GruntEnemy : EnemyBase
 
         while (elapsed < swingDuration)
         {
+            if (IsStunned())
+            {
+                yield return null;
+                continue;
+            }
+
             elapsed += Time.deltaTime;
 
             float t = elapsed / swingDuration;
@@ -125,6 +165,7 @@ public class GruntEnemy : EnemyBase
         nextAttackTime = Time.time + attackCooldown;
 
         isAttacking = false;
+        SetAnimation(idleState);
     }
 
     private void FaceAttackPivotTowardsPlayer()
@@ -189,5 +230,29 @@ public class GruntEnemy : EnemyBase
         Gizmos.DrawWireSphere(
             attackPoint.position,
             attackRadius);
+    }
+
+    private void SetAnimation(
+        string stateName,
+        bool force = false)
+    {
+        if (animator == null ||
+            string.IsNullOrWhiteSpace(stateName))
+        {
+            return;
+        }
+
+        if (!force &&
+            currentAnimationState == stateName)
+        {
+            return;
+        }
+
+        animator.Play(
+            stateName,
+            0,
+            0f);
+
+        currentAnimationState = stateName;
     }
 }

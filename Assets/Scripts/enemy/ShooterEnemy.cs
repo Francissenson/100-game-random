@@ -26,14 +26,28 @@ public class ShooterEnemy : EnemyBase
     [Header("Timing")]
     [SerializeField] private float recoveryTime = 1f;
 
+    [Header("Animation")]
+    [SerializeField] private string idleState = "idle";
+    [SerializeField] private string runState = "run";
+    [SerializeField] private string attackState = "shoot";
+
     private bool isAttacking;
     private bool isRecovering;
 
     private Vector2 lockedTargetPosition;
+    private Animator animator;
+    private string currentAnimationState;
 
     protected override void Start()
     {
         base.Start();
+
+        animator =
+            GetComponentInChildren<Animator>(true);
+
+        SetAnimation(
+            idleState,
+            true);
 
         Debug.Log($"{name} Shooter Initialized");
     }
@@ -44,6 +58,9 @@ public class ShooterEnemy : EnemyBase
             return;
 
         if (!IsAlive())
+            return;
+
+        if (IsStunned())
             return;
 
         if (isAttacking)
@@ -60,9 +77,11 @@ public class ShooterEnemy : EnemyBase
         if (distance > shootRange)
         {
             MoveTowardsPlayer();
+            SetAnimation(runState);
         }
         else
         {
+            SetAnimation(idleState);
             StartCoroutine(ShootRoutine());
         }
     }
@@ -82,6 +101,9 @@ public class ShooterEnemy : EnemyBase
     private IEnumerator ShootRoutine()
     {
         isAttacking = true;
+        SetAnimation(
+            attackState,
+            true);
 
         lockedTargetPosition = target.position;
 
@@ -95,6 +117,7 @@ public class ShooterEnemy : EnemyBase
 
         isAttacking = false;
         isRecovering = true;
+        SetAnimation(idleState, true);
 
         Debug.Log("Shooter Recovery Started");
 
@@ -117,6 +140,12 @@ public class ShooterEnemy : EnemyBase
 
         while (true)
         {
+            if (IsStunned())
+            {
+                yield return null;
+                continue;
+            }
+
             Vector2 direction =
                 lockedTargetPosition -
                 (Vector2)weaponPivot.position;
@@ -174,6 +203,8 @@ public class ShooterEnemy : EnemyBase
             (lockedTargetPosition -
              (Vector2)firePoint.position).normalized;
 
+        AudioManager.Instance?.PlayEnemyShoot();
+
         EnemyProjectile projectile =
             Instantiate(
                 projectilePrefab,
@@ -187,5 +218,29 @@ public class ShooterEnemy : EnemyBase
             projectileLifetime);
 
         Debug.Log("Projectile Spawned");
+    }
+
+    private void SetAnimation(
+        string stateName,
+        bool force = false)
+    {
+        if (animator == null ||
+            string.IsNullOrWhiteSpace(stateName))
+        {
+            return;
+        }
+
+        if (!force &&
+            currentAnimationState == stateName)
+        {
+            return;
+        }
+
+        animator.Play(
+            stateName,
+            0,
+            0f);
+
+        currentAnimationState = stateName;
     }
 }

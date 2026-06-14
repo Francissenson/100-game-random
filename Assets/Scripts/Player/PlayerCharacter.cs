@@ -37,6 +37,18 @@ namespace Game.Player
 
         private void FixedUpdate()
         {
+            if (AudioManager.IsSceneLoading ||
+                TransitionCanvas.IsTransitioning ||
+                PauseManager.IsPaused)
+            {
+                if (_rigidbody != null)
+                {
+                    _rigidbody.linearVelocity = Vector2.zero;
+                }
+
+                return;
+            }
+
             if (_dashSystem != null &&
                 _dashSystem.IsDashing)
             {

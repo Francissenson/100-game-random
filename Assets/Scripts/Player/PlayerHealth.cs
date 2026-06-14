@@ -157,6 +157,8 @@ public sealed class PlayerHealth : MonoBehaviour
                 cameraShakeIntensity);
         }
 
+        AudioManager.Instance?.PlayPlayerDamage();
+
         if (damageFlashRoutine != null)
         {
             StopCoroutine(
@@ -320,8 +322,10 @@ public sealed class PlayerHealth : MonoBehaviour
             }
         }
 
+        AudioManager.Instance?.BeginSceneLoadDucking(true);
         SceneManager.LoadScene(
             "EndRunScene");
+        AudioManager.Instance?.EndSceneLoadDucking(true);
     }
 
     private void OnDestroy()

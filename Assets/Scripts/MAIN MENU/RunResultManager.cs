@@ -36,14 +36,28 @@ public sealed class RunResultManager : MonoBehaviour
 
     public void SetVictory()
     {
+        if (RunFinished)
+        {
+            return;
+        }
+
         Victory = true;
         RunFinished = true;
+
+        AudioManager.Instance?.PlayVictorySting();
     }
 
     public void SetGameOver()
     {
+        if (RunFinished)
+        {
+            return;
+        }
+
         Victory = false;
         RunFinished = true;
+
+        AudioManager.Instance?.PlayDefeatSting();
     }
 
     public void ResetResult()

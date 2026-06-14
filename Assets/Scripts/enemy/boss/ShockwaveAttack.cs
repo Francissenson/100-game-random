@@ -37,24 +37,21 @@ public sealed class ShockwaveAttack : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            if (!hit.CompareTag("Player"))
+            PlayerHealth playerHealth =
+                hit.GetComponentInParent<PlayerHealth>();
+
+            if (playerHealth == null)
             {
                 continue;
             }
 
-            IDamageable damageable =
-                hit.GetComponentInParent<IDamageable>();
-
-            if (damageable == null)
-            {
-                continue;
-            }
-
-            damageable.TakeDamage(
+            playerHealth.TakeDamage(
                 damage);
 
             Debug.Log(
                 $"[ShockwaveAttack] Hit Player For {damage}");
+
+            break;
         }
 
         if (telegraph != null)

@@ -4,6 +4,8 @@ public sealed class MainMenuUI : MonoBehaviour
 {
     public void StartRun()
     {
+        AudioManager.Instance?.PlayButtonClick();
+
         if (RunStatsManager.Instance != null)
         {
             RunStatsManager.Instance.ResetRun();
@@ -22,6 +24,8 @@ public sealed class MainMenuUI : MonoBehaviour
 
     public void QuitGame()
     {
+        AudioManager.Instance?.PlayButtonClick();
+
         Application.Quit();
     }
 }

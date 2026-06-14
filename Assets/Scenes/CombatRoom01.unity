@@ -333,8 +333,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   offset: {x: 0, y: 0, z: -10}
   followSpeed: 10
-  shakeIntensity: 0.18
-  shakeDuration: 0.12
+  shakeIntensity: 0.05
+  shakeDuration: 0.05
 --- !u!1 &170541602
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,6 +36,8 @@ public class WeaponPickup : MonoBehaviour
 
         weaponManager.EquipLootWeapon(newWeapon);
 
+        AudioManager.Instance?.PlayWeaponPickupSfx();
+
         Destroy(gameObject);
     }
 }
